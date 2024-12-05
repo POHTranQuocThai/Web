@@ -16,12 +16,8 @@ const postCRUD = async (req, res) => {
     const createUser = await CRUDService.createNewUser(req.body)
     res.status(201).json(createUser)
 }
-const displayGetCRUD = async (req, res) => {
 
-}
 export const homeController = {
-    getHomePage,
-    displayGetCRUD,
     getHomePage,
     getCrudPage,
     postCRUD
