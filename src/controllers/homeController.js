@@ -17,8 +17,9 @@ const postCRUD = async (req, res) => {
     res.status(201).json(createUser)
 }
 
+
 export const homeController = {
     getHomePage,
     getCrudPage,
-    postCRUD
+    displayGetCRUD
 }

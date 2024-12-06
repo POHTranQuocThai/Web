@@ -26,6 +26,19 @@ const hashUserPassword = (password) => {
         }
     })
 }
+const getAllUser = async (req, res) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const users = await db.User.findAll({
+                raw: true
+            })
+            resolve(users)
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
 export const CRUDService = {
-    createNewUser
+    createNewUser,
+    getAllUser
 }
