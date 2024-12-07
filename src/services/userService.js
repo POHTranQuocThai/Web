@@ -1,53 +1,58 @@
 import db from "../models"
 import bcrypt from 'bcryptjs'
 
-const hanldeUserLogin = (email, password) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const isExist = await checkUserEmail(email)
-            if (isExist) {
-                const user = await db.User.findOne({
-                    where: { email: email },
-                    raw: true
-                })
-                if (user) {
-                    const checkPassValid = bcrypt.compareSync(password, user.password)
-                    if (checkPassValid) {
-                        delete user.password
-                        resolve({ status: 'OK', message: 'User information valided!', user: user })
-                    } else {
-                        resolve({ status: 'OK', message: 'Password wrong!' })
-                    }
-                } else {
-                    resolve({ status: 'ERR', message: 'Your Email is not exists!' })
-                }
-                resolve(true)
-            } else {
-                resolve({ status: 'ERR', message: 'Your Email is not exists!' })
-            }
-        } catch (error) {
-            reject(error)
+const handleUserLogin = async (email, password) => {
+    try {
+        // Kiểm tra email tồn tại
+        const isExist = await checkUserEmail(email);
+        if (!isExist) {
+            return { status: 'ERR', message: 'Your Email does not exist!' };
         }
-    })
+
+        // Tìm kiếm thông tin người dùng
+        const user = await db.User.findOne({
+            where: { email: email },
+            raw: true,
+        });
+
+        if (!user) {
+            return { status: 'ERR', message: 'Your Email does not exist!' };
+        }
+
+        // Kiểm tra mật khẩu
+        const isPasswordValid = bcrypt.compareSync(password, user.password);
+        if (!isPasswordValid) {
+            return { status: 'ERR', message: 'Email or Password is incorrect!' };
+        }
+
+        // Chỉ lấy email và roleid
+        const filteredUser = {
+            email: user.email,
+            roleid: user.roleid, // Thay 'roleid' bằng tên chính xác trong database nếu cần
+        };
+
+        return { status: 'OK', message: 'User information validated!', user: filteredUser };
+
+    } catch (error) {
+        // Bắt lỗi và trả về
+        console.error('Error in handleUserLogin:', error);
+        throw new Error('Internal server error');
+    }
 }
 
-const checkUserEmail = (userEmail) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const user = await db.User.findOne({
-                where: { email: userEmail }
-            })
-            if (!user) {
-                resolve(false)
-            } else {
-                resolve(true)
-            }
-        } catch (error) {
-            reject(error)
-        }
-    })
-}
+const checkUserEmail = async (userEmail) => {
+    try {
+        const user = await db.User.findOne({
+            where: { email: userEmail },
+        });
+        return !!user; // Trả về true nếu user tồn tại, ngược lại false
+    } catch (error) {
+        console.error('Error in checkUserEmail:', error);
+        throw new Error('Internal server error');
+    }
+};
+
 
 export const userService = {
-    hanldeUserLogin
+    handleUserLogin
 }
