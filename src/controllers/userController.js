@@ -39,10 +39,10 @@ const editUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        if (!req.body.id) {
+        if (!req.body.userId) {
             res.status(404).json({ status: 'ERR', message: 'Missing required parameters!' })
         }
-        const userData = await userService.deleteUser(req.body.id)
+        const userData = await userService.deleteUser(req.body.userId)
         res.status(200).json(userData)
     } catch (error) {
 

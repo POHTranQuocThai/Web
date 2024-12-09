@@ -80,6 +80,7 @@ const createNewUser = async (reqBody) => {
             const checkEmail = await checkUserEmail(reqBody.email)
             if (checkEmail) {
                 resolve({ status: 'ERR', message: 'Your email is already used!' })
+                return
             }
             const hashPasswordFromBcrypt = await hashUserPassword(reqBody.password)
             await db.User.create({
@@ -87,7 +88,7 @@ const createNewUser = async (reqBody) => {
                 password: hashPasswordFromBcrypt,
                 gender: reqBody.gender === '1' ? true : false
             })
-            resolve('Create a new user successfully!')
+            resolve({ status: 'OK', message: 'Create a new user successfully!' })
         } catch (error) {
             reject(error)
         }
