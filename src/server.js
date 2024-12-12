@@ -7,14 +7,13 @@ import { env } from './config/environment'
 import cors from 'cors'
 
 
-
 const app = express()
 //config app
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors({
-    origin: 'http://localhost:3000', // Thay bằng domain của bạn
+    origin: env.URL_REACT, // Thay bằng domain của bạn
     credentials: true, // Cho phép gửi cookie hoặc xác thực
 }))
 

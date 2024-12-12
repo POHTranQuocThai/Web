@@ -1,4 +1,3 @@
-import { where } from "sequelize";
 import db from "../models"
 import bcrypt from 'bcryptjs'
 const salt = bcrypt.genSaltSync(10)
@@ -74,7 +73,7 @@ const getAllUser = async (userId) => {
         return { status: 'OK', message: 'Get user successfully!', users: users }
     } catch (error) { throw error }
 }
-const createNewUser = async (reqBody) => {
+const createNewUser = (reqBody) => {
     return new Promise(async (resolve, reject) => {
         try {
             const checkEmail = await checkUserEmail(reqBody.email)
@@ -133,10 +132,25 @@ const deleteUser = async (userId) => {
         return { status: 'ERR', message: error.message || 'An error occurred while deleting the user' };
     }
 }
+const getAllCode = async (typeInput) => {
+    try {
+        if (!typeInput) {
+            return { status: 'ERR', message: 'Type input does not exist' };
+        }
+        const allCode = await db.Allcode.findAll({
+            where: { type: typeInput }
+        })
+        return { status: 'OK', message: 'Get all code successfully', data: allCode };
+
+    } catch (error) {
+        throw error
+    }
+}
 export const userService = {
     handleUserLogin,
     getAllUser,
     createNewUser,
     editUser,
-    deleteUser
+    deleteUser,
+    getAllCode
 }
