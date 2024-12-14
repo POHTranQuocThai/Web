@@ -10,8 +10,8 @@ import cors from 'cors'
 const app = express()
 //config app
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 app.use(cors({
     origin: env.URL_REACT, // Thay bằng domain của bạn
     credentials: true, // Cho phép gửi cookie hoặc xác thực

@@ -30,7 +30,10 @@ const handleUserLogin = async (email, password) => {
         const filteredUser = {
             email: user.email,
             roleid: user.roleid, // Thay 'roleid' bằng tên chính xác trong database nếu cần
+            firstName: user.firstName,
+            lastName: user.lastName
         };
+        console.log('🚀 ~ handleUserLogin ~ filteredUser:', filteredUser)
 
         return { status: 'OK', message: 'User information validated!', user: filteredUser };
 
@@ -84,8 +87,7 @@ const createNewUser = (reqBody) => {
             const hashPasswordFromBcrypt = await hashUserPassword(reqBody.password)
             await db.User.create({
                 ...reqBody,
-                password: hashPasswordFromBcrypt,
-                gender: reqBody.gender === '1' ? true : false
+                password: hashPasswordFromBcrypt
             })
             resolve({ status: 'OK', message: 'Create a new user successfully!' })
         } catch (error) {
@@ -105,6 +107,11 @@ const hashUserPassword = (password) => {
 }
 const editUser = async (userId, newData) => {
     try {
+
+        if (newData.image && newData.image.type === 'Buffer') {
+            newData.image = Buffer.from(newData.image.data); // Lưu trực tiếp Buffer
+        }
+
         const [updatedRows] = await db.User.update(newData, {
             where: { id: userId },
         });

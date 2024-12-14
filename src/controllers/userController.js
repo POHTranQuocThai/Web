@@ -20,6 +20,7 @@ const getAllUser = async (req, res) => {
     }
 }
 const createNewUser = async (req, res) => {
+    console.log('🚀 ~ createNewUser ~ req.body:', req.body)
     const createUser = await userService.createNewUser(req.body)
     res.status(201).json(createUser)
 }
