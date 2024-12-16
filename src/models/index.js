@@ -23,8 +23,13 @@ fs
     return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
   })
   .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    db[model.name] = model;
+    const modelFile = require(path.join(__dirname, file)); // Import file model
+    if (typeof modelFile === 'function') {
+      const model = modelFile(sequelize, Sequelize.DataTypes); // Gọi hàm export
+      db[model.name] = model;
+    } else {
+      console.error(`File ${file} không export một hàm. Vui lòng kiểm tra!`);
+    }
   });
 
 Object.keys(db).forEach(modelName => {

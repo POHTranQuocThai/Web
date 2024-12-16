@@ -10,10 +10,10 @@ const login = async (req, res) => {
     const userData = await userService.handleUserLogin(email, password)
     res.status(200).json(userData)
 }
-const getAllUser = async (req, res) => {
+const getAllUsers = async (req, res) => {
     try {
         const userId = req.query.id
-        const userData = await userService.getAllUser(userId)
+        const userData = await userService.getAllUsers(userId)
         return res.status(200).json(userData)
     } catch (error) {
 
@@ -62,7 +62,7 @@ const getAllCode = async (req, res) => {
 }
 export const userController = {
     login,
-    getAllUser,
+    getAllUsers,
     createNewUser,
     editUser,
     deleteUser,

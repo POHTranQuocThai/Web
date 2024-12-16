@@ -1,3 +1,4 @@
+import { where } from "sequelize";
 import db from "../models"
 import bcrypt from 'bcryptjs'
 const salt = bcrypt.genSaltSync(10)
@@ -56,7 +57,7 @@ const checkUserEmail = async (userEmail) => {
     }
 };
 
-const getAllUser = async (userId) => {
+const getAllUsers = async (userId) => {
     try {
         let users = []
         if (userId === 'All') {
@@ -153,11 +154,13 @@ const getAllCode = async (typeInput) => {
         throw error
     }
 }
+
 export const userService = {
     handleUserLogin,
-    getAllUser,
+    getAllUsers,
     createNewUser,
     editUser,
     deleteUser,
-    getAllCode
+    getAllCode,
+
 }
