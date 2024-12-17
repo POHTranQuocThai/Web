@@ -34,14 +34,30 @@ const getAllDoctors = async () => {
 const saveInfoDoctor = async (reqBody) => {
     console.log('🚀 ~ saveInfoDoctor ~ reqBody:', reqBody)
     try {
-        if (!reqBody.doctorId || !reqBody.contentHTML || !reqBody.contentMarkdown) {
+        if (!reqBody.doctorId || !reqBody.contentHTML || !reqBody.contentMarkdown || !reqBody.action) {
             return { status: 'ERR', message: 'Missing parameter' }
-        } else {
+        }
+        if (reqBody.action === 'CREATE') {
             await db.Markdown.create({
                 ...reqBody
             })
+            return { status: 'OK', message: 'Create doctor markdown successfully' };
+        } else if (reqBody.action === 'EDIT') {
+            const doctorMarkdown = await db.Markdown.findOne({
+                where: { doctorId: reqBody.doctorId }
+            })
+
+            if (doctorMarkdown) {
+                const { contentMarkdown, contentHTML, description } = reqBody
+                const [updatedRows] = await db.Markdown.update({ contentMarkdown, contentHTML, description }, {
+                    where: { doctorId: reqBody.doctorId },
+                });
+                if (updatedRows === 0) {
+                    return { status: 'ERR', message: 'Edit doctor markdown unsuccessfully' };
+                }
+            }
+            return { status: 'OK', message: 'Updated doctor markdown successfully' };
         }
-        return { status: 'OK', message: 'Get all code successfully' };
     } catch (error) {
         throw error
     }
