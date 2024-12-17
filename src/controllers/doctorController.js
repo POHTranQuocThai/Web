@@ -35,8 +35,17 @@ const saveInfoDoctor = async (req, res) => {
         return res.status(404).json({ status: 'ERR', message: new Error(error).message })
     }
 }
+const getDetailDoctorById = async (req, res) => {
+    try {
+        const response = await doctorService.getDetailDoctorById(req.query.id)
+        res.status(200).json(response)
+    } catch (error) {
+        return res.status(404).json({ status: 'ERR', message: new Error(error).message })
+    }
+}
 export const doctorController = {
     getTopDoctorHome,
     getAllDoctors,
-    saveInfoDoctor
+    saveInfoDoctor,
+    getDetailDoctorById
 }

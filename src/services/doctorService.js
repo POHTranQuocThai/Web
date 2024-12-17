@@ -46,8 +46,33 @@ const saveInfoDoctor = async (reqBody) => {
         throw error
     }
 }
+const getDetailDoctorById = async (inputId) => {
+    try {
+        if (!inputId) {
+            return { status: 'ERR', message: 'Missing parameter' }
+        }
+        const doctor = await db.User.findOne({
+            where: { id: inputId },
+            attributes: { exclude: ['password'] },
+            include: [
+                { model: db.Markdown, attributes: ['contentHTML', 'contentMarkdown', 'description'] },
+                { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'positionData' }
+            ],
+            raw: false,
+            nest: true
+        })
+        if (doctor && doctor.image) {
+            doctor.image = new Buffer.from(doctor.image, 'base64').toString('binary');
+
+        }
+        return { status: 'OK', message: 'Get all code successfully', data: doctor };
+    } catch (error) {
+        throw error
+    }
+}
 export const doctorService = {
     getTopDoctorHome,
     getAllDoctors,
-    saveInfoDoctor
+    saveInfoDoctor,
+    getDetailDoctorById
 }
