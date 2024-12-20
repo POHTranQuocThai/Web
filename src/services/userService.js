@@ -20,9 +20,9 @@ const handleUserLogin = async (email, password) => {
         if (!user) {
             return { status: 'ERR', message: 'Your Email does not exist!' };
         }
-
+        const hashedPassword = await bcrypt.hash(password, salt);
         // Kiểm tra mật khẩu
-        const isPasswordValid = bcrypt.compareSync(password, user.password);
+        const isPasswordValid = bcrypt.compareSync(password, hashedPassword);
         if (!isPasswordValid) {
             return { status: 'ERR', message: 'Email or Password is incorrect!' };
         }
@@ -30,7 +30,7 @@ const handleUserLogin = async (email, password) => {
         // Chỉ lấy email và roleid
         const filteredUser = {
             email: user.email,
-            roleid: user.roleid, // Thay 'roleid' bằng tên chính xác trong database nếu cần
+            roleId: user.roleId, // Thay 'roleid' bằng tên chính xác trong database nếu cần
             firstName: user.firstName,
             lastName: user.lastName
         };

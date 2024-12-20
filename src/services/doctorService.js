@@ -1,3 +1,5 @@
+import _ from "lodash";
+import { env } from "../config/environment";
 import db from "../models"
 
 const getTopDoctorHome = async (limit) => {
@@ -32,7 +34,6 @@ const getAllDoctors = async () => {
     }
 }
 const saveInfoDoctor = async (reqBody) => {
-    console.log('🚀 ~ saveInfoDoctor ~ reqBody:', reqBody)
     try {
         if (!reqBody.doctorId || !reqBody.contentHTML || !reqBody.contentMarkdown || !reqBody.action) {
             return { status: 'ERR', message: 'Missing parameter' }
@@ -86,9 +87,65 @@ const getDetailDoctorById = async (inputId) => {
         throw error
     }
 }
+const bulkCreateSchedule = async (data) => {
+    try {
+        if (!data.schedule || !data.doctorId || !data.date) {
+            return { status: 'OK', message: 'Missing required parameter!' };
+        }
+        let schedule = data.schedule
+        schedule = schedule?.map(item => {
+            item.maxNumber = env.MAX_NUMBER_SCHEDULE
+            return item
+        })
+        let existing = await db.Schedule.findAll({
+            where: { doctorId: data.doctorId, date: data.date },
+            attributes: ['timeType', 'date', 'doctorId', 'maxNumber'],
+            raw: true
+        })
+        existing = existing?.map(item => {
+            item.date = new Date(item.data).getTime()
+            return item
+        })
+        let toCreate = _.differenceWith(schedule, existing, (a, b) => {
+            return a.timeType === b.timeType && +a.date === +b.date
+        })
+        if (toCreate && toCreate.length > 0) {
+            await db.Schedule.bulkCreate(toCreate)
+        }
+        return { status: 'OK', message: 'Create schedule successfully' };
+    } catch (error) {
+        throw error
+    }
+}
+const getScheduleByDate = async (doctorId, date) => {
+    try {
+        if (!doctorId || !date) {
+            return { status: 'OK', message: 'Missing required parameter!' };
+        }
+        const data = await db.Schedule.findAll({
+            where: {
+                doctorId: doctorId,
+                date: date
+            },
+            include: [
+                { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'timeTypeData' }
+            ],
+            raw: false,
+            nest: true
+        })
+        if (!data) {
+            data = []
+        }
+        return { status: 'OK', message: 'Get schedule successfully', data: data };
+    } catch (error) {
+        throw error
+    }
+}
 export const doctorService = {
     getTopDoctorHome,
     getAllDoctors,
     saveInfoDoctor,
-    getDetailDoctorById
+    getDetailDoctorById,
+    bulkCreateSchedule,
+    getScheduleByDate
 }
