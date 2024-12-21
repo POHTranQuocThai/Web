@@ -52,6 +52,7 @@ const deleteUser = async (req, res) => {
 const getAllCode = async (req, res) => {
     try {
         const data = await userService.getAllCode(req.query.type)
+        console.log('🚀 ~ getAllCode ~ req.query.type:', req.query.type)
         res.status(200).json(data)
     } catch (error) {
         return res.status(200).json({

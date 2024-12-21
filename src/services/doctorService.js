@@ -35,14 +35,22 @@ const getAllDoctors = async () => {
 }
 const saveInfoDoctor = async (reqBody) => {
     try {
-        if (!reqBody.doctorId || !reqBody.contentHTML || !reqBody.contentMarkdown || !reqBody.action) {
+        console.log('🚀 ~ saveInfoDoctor ~ selectProvince:', reqBody.selectedProvince)
+        console.log('🚀 ~ saveInfoDoctor ~ selectedPayment:', reqBody.selectedPayment)
+        console.log('🚀 ~ saveInfoDoctor ~ reqBody.selectedPrice:', reqBody.selectedPrice)
+
+
+        console.log('🚀 ~ saveInfoDoctor ~ reqBody.doctorId:', reqBody.doctorId)
+        if (!reqBody.doctorId || !reqBody.contentHTML || !reqBody.contentMarkdown || !reqBody.action
+            || !reqBody.priceId || !reqBody.paymentId || !reqBody.provinceId || !reqBody.nameClinic
+            || !reqBody.addressClinic || !reqBody.note
+        ) {
             return { status: 'ERR', message: 'Missing parameter' }
         }
         if (reqBody.action === 'CREATE') {
             await db.Markdown.create({
                 ...reqBody
             })
-            return { status: 'OK', message: 'Create doctor markdown successfully' };
         } else if (reqBody.action === 'EDIT') {
             const doctorMarkdown = await db.Markdown.findOne({
                 where: { doctorId: reqBody.doctorId }
@@ -57,7 +65,24 @@ const saveInfoDoctor = async (reqBody) => {
                     return { status: 'ERR', message: 'Edit doctor markdown unsuccessfully' };
                 }
             }
-            return { status: 'OK', message: 'Updated doctor markdown successfully' };
+        }
+        const doctorInfor = await db.Doctor_Infor.findOne({
+            where: { doctorId: reqBody.doctorId }
+        })
+        if (doctorInfor) {
+            const [updatedRows] = await db.Doctor_Infor.update(reqBody, {
+                where: { doctorId: reqBody.doctorId },
+                raw: false
+            });
+            if (updatedRows === 0) {
+                return { status: 'ERR', message: 'Edit doctor infor unsuccessfully' };
+            }
+            return { status: 'OK', message: 'Edit doctor infor successfully' };
+        } else {
+            await db.Doctor_Infor.create({
+                ...reqBody
+            });
+            return { status: 'OK', message: 'Create doctor infor successfully' };
         }
     } catch (error) {
         throw error
