@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { includes } from "lodash";
 import { env } from "../config/environment";
 import db from "../models"
 
@@ -35,12 +35,6 @@ const getAllDoctors = async () => {
 }
 const saveInfoDoctor = async (reqBody) => {
     try {
-        console.log('🚀 ~ saveInfoDoctor ~ selectProvince:', reqBody.selectedProvince)
-        console.log('🚀 ~ saveInfoDoctor ~ selectedPayment:', reqBody.selectedPayment)
-        console.log('🚀 ~ saveInfoDoctor ~ reqBody.selectedPrice:', reqBody.selectedPrice)
-
-
-        console.log('🚀 ~ saveInfoDoctor ~ reqBody.doctorId:', reqBody.doctorId)
         if (!reqBody.doctorId || !reqBody.contentHTML || !reqBody.contentMarkdown || !reqBody.action
             || !reqBody.priceId || !reqBody.paymentId || !reqBody.provinceId || !reqBody.nameClinic
             || !reqBody.addressClinic || !reqBody.note
@@ -77,7 +71,7 @@ const saveInfoDoctor = async (reqBody) => {
             if (updatedRows === 0) {
                 return { status: 'ERR', message: 'Edit doctor infor unsuccessfully' };
             }
-            return { status: 'OK', message: 'Edit doctor infor successfully' };
+            return { status: 'OK', message: 'Updated doctor infor successfully' };
         } else {
             await db.Doctor_Infor.create({
                 ...reqBody
@@ -98,6 +92,15 @@ const getDetailDoctorById = async (inputId) => {
             attributes: { exclude: ['password'] },
             include: [
                 { model: db.Markdown, attributes: ['contentHTML', 'contentMarkdown', 'description'] },
+                {
+                    model: db.Doctor_Infor,
+                    attributes: { exclude: ['id', 'doctorId', ''] },
+                    include: [
+                        { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'priceTypeData' },
+                        { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'paymentTypeData' },
+                        { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'provinceTypeData' }
+                    ]
+                },
                 { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'positionData' }
             ],
             raw: false,
@@ -107,7 +110,7 @@ const getDetailDoctorById = async (inputId) => {
             doctor.image = new Buffer.from(doctor.image, 'base64').toString('binary');
 
         }
-        return { status: 'OK', message: 'Get all code successfully', data: doctor };
+        return { status: 'OK', message: 'Get all code successfully', data: doctor ? doctor : {} };
     } catch (error) {
         throw error
     }
