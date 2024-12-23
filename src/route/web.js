@@ -23,7 +23,7 @@ export const initWebRoutes = (app) => {
     router.get('/api/get-schedule-by-date', doctorController.getScheduleByDate)
     router.get('/api/get-extra-infor-doctor-by-id', doctorController.getExtraInforDoctorId)
     router.get('/api/get-profile-doctor-by-id', doctorController.getProfileDoctorById)
-    router.get('/api/patient-book-appointment', patientController.postBookAppointment)
+    router.post('/api/patient-book-appointment', patientController.postBookAppointment)
 
     return app.use('/', router)
 }

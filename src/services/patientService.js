@@ -2,7 +2,10 @@ import db from "../models"
 
 
 const postBookAppointment = async (reqBody) => {
+    console.log('🚀 ~ postBookAppointment ~ reqBody:', reqBody)
     try {
+        console.log('🚀 ~ postBookAppointment ~ reqBody.email:', reqBody.email, reqBody.date)
+        console.log('🚀 ~ postBookAppointment ~ reqBody.email || !reqBody.doctorId || !reqBody.timeType || !reqBody.date:', reqBody.email, !reqBody.doctorId, !reqBody.timeType, !reqBody.date)
         if (!reqBody.email || !reqBody.doctorId || !reqBody.timeType || !reqBody.date) {
             return { status: 'ERR', message: 'Missing required parameter!' }
         }
