@@ -94,7 +94,7 @@ const getDetailDoctorById = async (inputId) => {
                 { model: db.Markdown, attributes: ['contentHTML', 'contentMarkdown', 'description'] },
                 {
                     model: db.Doctor_Infor,
-                    attributes: { exclude: ['id', 'doctorId', ''] },
+                    attributes: { exclude: ['id', 'doctorId'] },
                     include: [
                         { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'priceTypeData' },
                         { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'paymentTypeData' },
@@ -108,7 +108,6 @@ const getDetailDoctorById = async (inputId) => {
         })
         if (doctor && doctor.image) {
             doctor.image = new Buffer.from(doctor.image, 'base64').toString('binary');
-
         }
         return { status: 'OK', message: 'Get all code successfully', data: doctor ? doctor : {} };
     } catch (error) {
@@ -168,6 +167,65 @@ const getScheduleByDate = async (doctorId, date) => {
     } catch (error) {
         throw error
     }
+
+}
+const getExtraInforDoctorById = async (doctorId) => {
+    try {
+        if (!doctorId) {
+            return { status: 'ERR', message: 'Missing required parameter!' };
+        } else {
+            const data = await db.Doctor_Infor.findOne({
+                where: { doctorId: doctorId },
+                attributes: { exclude: ['id', 'doctorId'] },
+                include: [
+
+                    { model: db.Allcode, as: 'priceTypeData', attributes: ['valueVi', 'valueEn'] },
+                    { model: db.Allcode, as: 'paymentTypeData', attributes: ['valueVi', 'valueEn'] },
+                    { model: db.Allcode, as: 'provinceTypeData', attributes: ['valueVi', 'valueEn'] },
+                ],
+                raw: false,
+                nest: true
+            })
+            return { status: 'OK', message: 'Get schedule successfully', data: data ? data : {} };
+        }
+    } catch (error) {
+        throw error
+    }
+
+}
+const getProfileDoctorById = async (doctorId) => {
+    try {
+        if (!doctorId) {
+            return { status: 'ERR', message: 'Missing required parameter!' };
+        } else {
+            const doctor = await db.User.findOne({
+                where: { id: doctorId },
+                attributes: { exclude: ['password'] },
+                include: [
+                    { model: db.Markdown, attributes: ['contentHTML', 'contentMarkdown', 'description'] },
+                    {
+                        model: db.Doctor_Infor,
+                        attributes: { exclude: ['id', 'doctorId'] },
+                        include: [
+                            { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'priceTypeData' },
+                            { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'paymentTypeData' },
+                            { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'provinceTypeData' }
+                        ]
+                    },
+                    { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'positionData' }
+                ],
+                raw: false,
+                nest: true
+            })
+            if (doctor && doctor.image) {
+                doctor.image = new Buffer.from(doctor.image, 'base64').toString('binary');
+            }
+            return { status: 'OK', message: 'Get schedule successfully', data: doctor ? doctor : {} };
+        }
+    } catch (error) {
+        throw error
+    }
+
 }
 export const doctorService = {
     getTopDoctorHome,
@@ -175,5 +233,7 @@ export const doctorService = {
     saveInfoDoctor,
     getDetailDoctorById,
     bulkCreateSchedule,
-    getScheduleByDate
+    getScheduleByDate,
+    getExtraInforDoctorById,
+    getProfileDoctorById
 }

@@ -154,7 +154,6 @@ const getAllCode = async (typeInput) => {
         throw error
     }
 }
-
 export const userService = {
     handleUserLogin,
     getAllUsers,

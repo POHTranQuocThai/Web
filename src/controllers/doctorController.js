@@ -59,11 +59,29 @@ const getScheduleByDate = async (req, res) => {
         return res.status(404).json({ status: 'ERR', message: new Error(error).message })
     }
 }
+const getExtraInforDoctorId = async (req, res) => {
+    try {
+        const response = await doctorService.getExtraInforDoctorById(req.query.doctorId)
+        res.status(200).json(response)
+    } catch (error) {
+        return res.status(404).json({ status: 'ERR', message: new Error(error).message })
+    }
+}
+const getProfileDoctorById = async (req, res) => {
+    try {
+        const response = await doctorService.getProfileDoctorById(req.query.doctorId)
+        res.status(200).json(response)
+    } catch (error) {
+        return res.status(404).json({ status: 'ERR', message: new Error(error).message })
+    }
+}
 export const doctorController = {
     getTopDoctorHome,
     getAllDoctors,
     saveInfoDoctor,
     getDetailDoctorById,
     bulkCreateSchedule,
-    getScheduleByDate
+    getScheduleByDate,
+    getExtraInforDoctorId,
+    getProfileDoctorById
 }
