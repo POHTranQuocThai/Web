@@ -155,7 +155,8 @@ const getScheduleByDate = async (doctorId, date) => {
                 date: date
             },
             include: [
-                { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'timeTypeData' }
+                { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'timeTypeData' },
+                { model: db.User, attributes: ['firstName', 'lastName'], as: 'doctorData' }
             ],
             raw: false,
             nest: true

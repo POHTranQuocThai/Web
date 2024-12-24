@@ -1,14 +1,22 @@
 import db from "../models"
+import { emailService } from "./emailService"
 
 
 const postBookAppointment = async (reqBody) => {
-    console.log('🚀 ~ postBookAppointment ~ reqBody:', reqBody)
     try {
-        console.log('🚀 ~ postBookAppointment ~ reqBody.email:', reqBody.email, reqBody.date)
-        console.log('🚀 ~ postBookAppointment ~ reqBody.email || !reqBody.doctorId || !reqBody.timeType || !reqBody.date:', reqBody.email, !reqBody.doctorId, !reqBody.timeType, !reqBody.date)
-        if (!reqBody.email || !reqBody.doctorId || !reqBody.timeType || !reqBody.date) {
+        if (!reqBody.email || !reqBody.doctorId || !reqBody.timeType || !reqBody.date
+            || !reqBody.fullname
+        ) {
             return { status: 'ERR', message: 'Missing required parameter!' }
         }
+        await emailService.sendSimpleEmail({
+            reciverEmail: reqBody.email,
+            patientName: reqBody.fullname,
+            time: reqBody.timeString,
+            doctorName: reqBody.doctorName,
+            language: reqBody.language,
+            redirectLink: "https://www.youtube.com/watch?v=0GL--Adfqhc"
+        })
         const user = await db.User.findOrCreate({
             where: { email: reqBody.email },
             defaults: {

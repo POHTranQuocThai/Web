@@ -21,7 +21,10 @@ module.exports = {
                 type: Sequelize.STRING
             },
             timeType: {
-                type: Sequelize.BOOLEAN
+                type: Sequelize.STRING
+            },
+            token: {
+                type: Sequelize.STRING
             },
             createdAt: {
                 allowNull: false,
