@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 const salt = bcrypt.genSaltSync(10)
 
 const handleUserLogin = async (email, password) => {
+    console.log('🚀 ~ handleUserLogin ~ email:', email)
     try {
         // Kiểm tra email tồn tại
         const isExist = await checkUserEmail(email);
@@ -20,13 +21,16 @@ const handleUserLogin = async (email, password) => {
         if (!user) {
             return { status: 'ERR', message: 'Your Email does not exist!' };
         }
-        const hashedPassword = await bcrypt.hash(password, salt);
-        // Kiểm tra mật khẩu
-        const isPasswordValid = bcrypt.compareSync(password, hashedPassword);
+        // const hashedPassword = await bcrypt.hash(password, salt);
+        // // Kiểm tra mật khẩu
+        // const isPasswordValid = bcrypt.compareSync(password, hashedPassword);
+        // if (!isPasswordValid) {
+        //     return { status: 'ERR', message: 'Email or Password is incorrect!' };
+        // }
+        const isPasswordValid = bcrypt.compareSync(password, user.password);
         if (!isPasswordValid) {
             return { status: 'ERR', message: 'Email or Password is incorrect!' };
         }
-
         // Chỉ lấy email và roleid
         const filteredUser = {
             email: user.email,
@@ -46,9 +50,15 @@ const handleUserLogin = async (email, password) => {
 }
 
 const checkUserEmail = async (userEmail) => {
+    console.log('🚀 ~ checkUserEmail ~ userEmail:', userEmail)
     try {
+        if (!userEmail) {
+            console.error('🚨 ~ Email is undefined or null!');
+            throw new Error('Invalid email input');
+        }
         const user = await db.User.findOne({
             where: { email: userEmail },
+            raw: true,
         });
         return !!user; // Trả về true nếu user tồn tại, ngược lại false
     } catch (error) {
@@ -59,6 +69,7 @@ const checkUserEmail = async (userEmail) => {
 
 const getAllUsers = async (userId) => {
     try {
+
         let users = []
         if (userId === 'All') {
             users = await db.User.findAll({ raw: true })
