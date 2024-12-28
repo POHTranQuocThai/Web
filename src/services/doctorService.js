@@ -33,13 +33,30 @@ const getAllDoctors = async () => {
         throw error
     }
 }
+const checkRequiredFields = (input) => {
+    const requiredFields = ['doctorId', 'contentHTML', 'contentMarkdown', 'action', 'priceId', 'paymentId', 'provinceId', 'nameClinic',
+        'addressClinic', 'note', 'specialtyId'
+    ];
+    for (const field of requiredFields) {
+        if (!input[field] || input[field] === '') {
+            return {
+                isValid: false,
+                element: field
+            };
+        }
+    }
+    return {
+        isValid: true,
+        element: ''
+    };
+};
 const saveInfoDoctor = async (reqBody) => {
     try {
-        if (!reqBody.doctorId || !reqBody.contentHTML || !reqBody.contentMarkdown || !reqBody.action
-            || !reqBody.priceId || !reqBody.paymentId || !reqBody.provinceId || !reqBody.nameClinic
-            || !reqBody.addressClinic || !reqBody.note
-        ) {
-            return { status: 'ERR', message: 'Missing parameter' }
+        const checkObj = checkRequiredFields(reqBody)
+        console.log('🚀 ~ saveInfoDoctor ~ checkObj:', checkObj)
+        console.log('🚀 ~ saveInfoDoctor ~ reqBody:', reqBody)
+        if (!checkObj.isValid) {
+            return { status: 'ERR', message: 'Missing parameter ' + checkObj.element }
         }
         if (reqBody.action === 'CREATE') {
             await db.Markdown.create({

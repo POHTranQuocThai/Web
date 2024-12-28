@@ -17,7 +17,7 @@ const createSpecialty = async (reqBody) => {
         throw error
     }
 }
-const getAllSpecialty = async (req, res) => {
+const getAllSpecialty = async () => {
     try {
         const data = await db.Specialty.findAll()
         if (data) {
@@ -31,8 +31,42 @@ const getAllSpecialty = async (req, res) => {
         throw error
     }
 }
+const getDetailSpecialtyById = async (id, location) => {
+    try {
+        if (!id || !location) {
+            return { status: 'ERR', message: 'Missing required parameter!' }
+        }
+
+        const data = await db.Specialty.findOne({
+            where: { id: id },
+            attributes: ['descriptionHTML', 'descriptionMarkdown']
+        })
+        if (data) {
+            let doctorSpecialty = []
+            if (location === 'ALL') {
+                doctorSpecialty = await db.Doctor_Infor.findAll({
+                    where: { specialtyId: id },
+                    attributes: ['doctorId', 'provinceId']
+                })
+            } else {
+                doctorSpecialty = await db.Doctor_Infor.findAll({
+                    where: {
+                        specialtyId: id,
+                        provinceId: location
+                    },
+                    attributes: ['doctorId', 'provinceId']
+                })
+            }
+            data.doctorSpecialty = doctorSpecialty
+        }
+        return { status: 'OK', message: 'OK!', data: data }
+    } catch (error) {
+        throw error
+    }
+}
 
 export const specialtyService = {
     createSpecialty,
-    getAllSpecialty
+    getAllSpecialty,
+    getDetailSpecialtyById
 }   
