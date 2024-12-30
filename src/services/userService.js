@@ -4,7 +4,6 @@ import bcrypt from 'bcryptjs'
 const salt = bcrypt.genSaltSync(10)
 
 const handleUserLogin = async (email, password) => {
-    console.log('🚀 ~ handleUserLogin ~ email:', email)
     try {
         // Kiểm tra email tồn tại
         const isExist = await checkUserEmail(email);
@@ -33,13 +32,12 @@ const handleUserLogin = async (email, password) => {
         }
         // Chỉ lấy email và roleid
         const filteredUser = {
+            id: user.id,
             email: user.email,
             roleId: user.roleId, // Thay 'roleid' bằng tên chính xác trong database nếu cần
             firstName: user.firstName,
             lastName: user.lastName
         };
-        console.log('🚀 ~ handleUserLogin ~ filteredUser:', filteredUser)
-
         return { status: 'OK', message: 'User information validated!', user: filteredUser };
 
     } catch (error) {

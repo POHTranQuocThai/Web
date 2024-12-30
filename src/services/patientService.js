@@ -9,7 +9,9 @@ const buildUrlEmail = (doctorId, token) => {
 }
 const postBookAppointment = async (reqBody) => {
     try {
-        if (!reqBody.email || !reqBody.doctorId || !reqBody.timeType || !reqBody.date || !reqBody.fullname) {
+        if (!reqBody.email || !reqBody.doctorId || !reqBody.timeType || !reqBody.date || !reqBody.fullname
+            || !reqBody.selectedGender || !reqBody.address
+        ) {
             return { status: 'ERR', message: 'Missing required parameter!' };
         }
 
@@ -31,6 +33,9 @@ const postBookAppointment = async (reqBody) => {
             defaults: {
                 email: reqBody.email,
                 roleId: 'R3',
+                gender: reqBody.selectedGender,
+                address: reqBody.address,
+                firstName: reqBody.fullname
             },
         });
 

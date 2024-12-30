@@ -1,11 +1,13 @@
 import _, { includes } from "lodash";
 import { env } from "../config/environment";
 import db from "../models"
+import { emailService } from "./emailService";
 
 const getTopDoctorHome = async (limit) => {
     try {
         const users = await db.User.findAll({
             limit: Number(limit),
+            where: { roleId: 'R2' },
             order: [['createdAt', 'DESC']],
             attributes: { exclude: ['password'] },
             include: [
@@ -54,14 +56,15 @@ const saveInfoDoctor = async (reqBody) => {
     try {
         const checkObj = checkRequiredFields(reqBody)
         console.log('🚀 ~ saveInfoDoctor ~ checkObj:', checkObj)
-        console.log('🚀 ~ saveInfoDoctor ~ reqBody:', reqBody)
+        console.log('🚀 ~ saveInfoDoctor ~ reqBody:', reqBody.action)
         if (!checkObj.isValid) {
             return { status: 'ERR', message: 'Missing parameter ' + checkObj.element }
         }
-        if (reqBody.action === 'CREATE') {
-            await db.Markdown.create({
-                ...reqBody
-            })
+        if (reqBody.action === 'ADD') {
+            const { contentMarkdown, contentHTML, description, doctorId, clinicId, specialtyId } = reqBody;
+            const res = await db.Markdown.create({ contentMarkdown, contentHTML, description, doctorId, specialtyId, clinicId });
+            console.log('🚀 ~ saveInfoDoctor ~ res:', res)
+
         } else if (reqBody.action === 'EDIT') {
             const doctorMarkdown = await db.Markdown.findOne({
                 where: { doctorId: reqBody.doctorId }
@@ -245,6 +248,64 @@ const getProfileDoctorById = async (doctorId) => {
     }
 
 }
+const getListPatientForDoctor = async (doctorId, date) => {
+
+    try {
+        if (!doctorId || !date) {
+            return { status: 'ERR', message: 'Missing required parameter!' };
+        } else {
+            const data = await db.Booking.findAll({
+                where: {
+                    statusId: 'S2',
+                    doctorId: doctorId,
+                    date: date
+                },
+                include: [
+                    {
+                        model: db.User, attributes: ['email', 'firstName', 'address', 'gender'], as: 'patientData',
+                        include: [
+                            { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'genderData' },
+                        ]
+                    },
+                    { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'timeTypeDataPatient' },
+
+                ],
+                raw: false,
+                nest: true
+            })
+            return { status: 'OK', message: 'Get schedule successfully', data: data ? data : {} };
+        }
+    } catch (error) {
+        throw error
+    }
+
+}
+const sendRemedy = async (reqBody) => {
+
+    try {
+        if (!reqBody.email || !reqBody.doctorId || !reqBody.patientId) {
+            return { status: 'ERR', message: 'Missing required parameter!' };
+        }
+        const appointment = await db.Booking.findOne({
+            where: {
+                doctorId: reqBody.doctorId,
+                patientId: reqBody.patientId,
+                timeType: reqBody.timeType,
+                statusId: 'S2'
+            },
+            raw: false
+        })
+        if (appointment) {
+            appointment.statusId = 'S3'
+            await appointment.save()
+        }
+        await emailService.sendAttachment(reqBody)
+        return { status: 'OK', message: 'Send remedy successfully' };
+    } catch (error) {
+        throw error
+    }
+
+}
 export const doctorService = {
     getTopDoctorHome,
     getAllDoctors,
@@ -253,5 +314,7 @@ export const doctorService = {
     bulkCreateSchedule,
     getScheduleByDate,
     getExtraInforDoctorById,
-    getProfileDoctorById
+    getProfileDoctorById,
+    getListPatientForDoctor,
+    sendRemedy
 }
