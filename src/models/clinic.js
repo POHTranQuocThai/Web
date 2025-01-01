@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'Clinic',
+        tableName: 'clinics', // Tên bảng trong cơ sở dữ liệu
     });
     return Clinic;
 };

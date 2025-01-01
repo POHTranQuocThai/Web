@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'Specialty',
+        tableName: 'specialties', // Tên bảng trong cơ sở dữ liệu
     });
     return Specialty;
 };

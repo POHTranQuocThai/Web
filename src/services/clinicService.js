@@ -46,12 +46,13 @@ const getDetailClinicById = async (id) => {
             let doctorClinic = []
             doctorClinic = await db.Doctor_Infor.findAll({
                 where: {
-                    ClinicId: id,
+                    clinicId: id,
                 },
                 attributes: ['doctorId', 'provinceId']
             })
             data.doctorClinic = doctorClinic
         }
+        console.log('🚀 ~ getDetailClinicById ~ data:', data)
 
         return { status: 'OK', message: 'OK!', data: data }
     } catch (error) {

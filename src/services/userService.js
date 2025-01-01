@@ -48,10 +48,8 @@ const handleUserLogin = async (email, password) => {
 }
 
 const checkUserEmail = async (userEmail) => {
-    console.log('🚀 ~ checkUserEmail ~ userEmail:', userEmail)
     try {
         if (!userEmail) {
-            console.error('🚨 ~ Email is undefined or null!');
             throw new Error('Invalid email input');
         }
         const user = await db.User.findOne({

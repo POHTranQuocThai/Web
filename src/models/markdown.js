@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'Markdown',
+        tableName: 'markdowns', // Tên bảng trong cơ sở dữ liệu
     });
     return Markdown;
 };

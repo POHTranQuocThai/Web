@@ -1,4 +1,4 @@
-import _, { includes } from "lodash";
+import _ from "lodash";
 import { env } from "../config/environment";
 import db from "../models"
 import { emailService } from "./emailService";
@@ -14,8 +14,8 @@ const getTopDoctorHome = async (limit) => {
                 { model: db.Allcode, as: 'positionData', attributes: ['valueVi', 'valueEn'] },
                 { model: db.Allcode, as: 'genderData', attributes: ['valueVi', 'valueEn'] },
             ],
-            nest: true,
             raw: true,
+            nest: true,
         });
         return { status: 'OK', data: users, message: 'Get users sorted desc order successfully!' };
     } catch (error) {
@@ -55,15 +55,12 @@ const checkRequiredFields = (input) => {
 const saveInfoDoctor = async (reqBody) => {
     try {
         const checkObj = checkRequiredFields(reqBody)
-        console.log('🚀 ~ saveInfoDoctor ~ checkObj:', checkObj)
-        console.log('🚀 ~ saveInfoDoctor ~ reqBody:', reqBody.action)
         if (!checkObj.isValid) {
             return { status: 'ERR', message: 'Missing parameter ' + checkObj.element }
         }
         if (reqBody.action === 'ADD') {
             const { contentMarkdown, contentHTML, description, doctorId, clinicId, specialtyId } = reqBody;
             const res = await db.Markdown.create({ contentMarkdown, contentHTML, description, doctorId, specialtyId, clinicId });
-            console.log('🚀 ~ saveInfoDoctor ~ res:', res)
 
         } else if (reqBody.action === 'EDIT') {
             const doctorMarkdown = await db.Markdown.findOne({
@@ -145,19 +142,21 @@ const bulkCreateSchedule = async (data) => {
             return item
         })
         let existing = await db.Schedule.findAll({
-            where: { doctorId: data.doctorId, date: data.date },
+            where: { doctorId: data.doctorId, date: '' + data.date },
             attributes: ['timeType', 'date', 'doctorId', 'maxNumber'],
             raw: true
         })
         existing = existing?.map(item => {
-            item.date = new Date(item.data).getTime()
+            item.date = new Date(item.date).getTime()
             return item
         })
         let toCreate = _.differenceWith(schedule, existing, (a, b) => {
-            return a.timeType === b.timeType && +a.date === +b.date
-        })
+            a.date = new Date(a.date).getTime();  // Chuyển chuỗi ngày thành timestamp
+            b.date = new Date(b.date).getTime();  // Chuyển chuỗi ngày thành timestamp
+            return a.timeType === b.timeType && a.date === b.date;
+        });
         if (toCreate && toCreate.length > 0) {
-            await db.Schedule.bulkCreate(toCreate)
+            await db.Schedule.bulkCreate(toCreate, { ignoreDuplicates: true })
         }
         return { status: 'OK', message: 'Create schedule successfully' };
     } catch (error) {
@@ -178,7 +177,7 @@ const getScheduleByDate = async (doctorId, date) => {
                 { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'timeTypeData' },
                 { model: db.User, attributes: ['firstName', 'lastName'], as: 'doctorData' }
             ],
-            raw: false,
+            raw: true,
             nest: true
         })
         if (!data) {
@@ -270,7 +269,7 @@ const getListPatientForDoctor = async (doctorId, date) => {
                     { model: db.Allcode, attributes: ['valueVi', 'valueEn'], as: 'timeTypeDataPatient' },
 
                 ],
-                raw: false,
+                raw: true,
                 nest: true
             })
             return { status: 'OK', message: 'Get schedule successfully', data: data ? data : {} };

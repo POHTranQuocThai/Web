@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'Allcode',
+        tableName: 'Allcodes', // Tên bảng trong cơ sở dữ liệu
     });
     return Allcode;
 };

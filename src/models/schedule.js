@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'Schedule',
+        tableName: 'schedules', // Tên bảng trong cơ sở dữ liệu
     });
     return Schedule;
 };

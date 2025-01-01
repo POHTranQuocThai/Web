@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'Doctor_Infor',
-        freezeTableName: true
+        tableName: 'doctor_infor', // Tên bảng trong cơ sở dữ liệu
     });
     return Doctor_Infor;
 };
